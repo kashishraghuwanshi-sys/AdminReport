@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
 import reportRoutes from "./routes/report.routes.js";
+import adminUsersRoutes from "./routes/adminUsers.routes.js";
 import { pool } from "./config/db.js";
-
 
 const app = express();
 
@@ -22,5 +22,6 @@ app.get("/health", async (req, res) => {
 });
 
 app.use("/api/admin/reports", reportRoutes);
+app.use("/api/admin/users", adminUsersRoutes);
 
 export default app;
