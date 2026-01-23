@@ -5,17 +5,20 @@ export const getUsersByType = async (req, res) => {
     const { type = "all" } = req.query;
 
     let filter = "";
-    if (type === "Approve") filter = "AND u.status = 'approved'";
-    if (type === "On Hold") filter = "AND u.status = 'hold'";
+    if (type === "approved") filter = "AND u.status = 'Approve'";
+    if (type === "hold") filter = "AND u.status = 'On Hold'";
+    if (type === "process") filter = "AND u.status = 'In Process'";
 
     const query = `
       SELECT
         u.id,
         COALESCE(p.first_name, 'N/A') AS name,
+        COALESCE(p.last_name, 'N/A') AS Lname,
         u.email,
         p.age,
         p.profession,
-        u.status
+        u.status,
+        u.created_at
       FROM users u
       LEFT JOIN profiles p ON p.user_id = u.id
       WHERE 1=1 ${filter}

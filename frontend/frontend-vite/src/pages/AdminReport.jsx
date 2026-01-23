@@ -8,7 +8,6 @@ import LineChart from "../components/Charts/LineChart";
 import PieChart from "../components/Charts/PieChart";
 import StackedBarChart from "../components/Charts/StackedBarChart";
 import { fetchAdminReport } from "../api/adminReport.api";
-import UserActivityTable from "../components/UserActivityTable";
 
 const AdminReport = () => {
   const navigate = useNavigate();
@@ -52,7 +51,7 @@ const AdminReport = () => {
       // ✅ IMPORTANT FIX
       const actualData =
         response?.data?.data || response?.data || response;
-
+      console.log(actualData);
       if (!actualData?.summary) {
         console.error("Invalid response:", response);
         alert("Invalid report data");
@@ -60,6 +59,7 @@ const AdminReport = () => {
       }
 
       setReport(actualData);
+      // console.log("kathan this:",report);
     } catch (err) {
       console.error("API Error:", err);
       alert("Failed to fetch report");
@@ -103,8 +103,16 @@ const AdminReport = () => {
               onClick={() => navigate("/users/hold")}
             />
             <StatCard
+              title="In-process Users"
+              value={report.summary.users.in_process_users}
+              onClick={() => navigate("/users/process")}
+            />
+            <StatCard
               title="Subscriptions"
               value={report.summary.subscriptions.total_subscriptions}
+              onClick={() => navigate("/subscribe",{
+              state: { val: report.users_activity }
+})}
             />
           </div>
 
@@ -145,12 +153,12 @@ const AdminReport = () => {
           </div>
 
           {/* 💳 PAYMENTS */}
-          <div className="mt-10">
+          {/* <div className="mt-10">
             <h2 className="text-xl font-bold mb-4">
               User Plan & Payment Activity
             </h2>
             <UserActivityTable data={report.users_activity || []} />
-          </div>
+          </div> */}
         </>
       )}
     </div>
