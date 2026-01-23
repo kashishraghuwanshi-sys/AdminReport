@@ -1,43 +1,119 @@
+import { useState,useEffect } from "react";
+
+
+
 const UserActivityTable = ({ data = [] }) => {
+  const [totalAmount,setTotalAmount]=useState(0);
+  const getTotalAmt=()=>{
+    var amt=0;
+    data.map((item)=>{
+      
+      amt=amt+Number(item.amount)
+      // console.log(amt);
+      return(
+        amt
+      )
+    })
+  };
+  // setTotalAmount(getTotalAmt())
   if (!data.length) {
-    return <p className="text-gray-500 text-center">No user activity found</p>;
+    return (
+      <p className="text-gray-500 text-center py-6">
+        No user activity found
+      </p>
+    );
   }
+  
 
   return (
-    <div className="overflow-x-auto bg-white rounded shadow">
-      <table className="min-w-full border">
-        <thead className="bg-gray-100 text-sm">
+    <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+      <table className="min-w-full text-sm text-left">
+        <thead className="bg-gray-50 border-b">
           <tr>
-            <th className="p-2 border">User</th>
-            <th className="p-2 border">Email</th>
-            <th className="p-2 border">Plan</th>
-            <th className="p-2 border">Status</th>
-            <th className="p-2 border">Amount</th>
-            <th className="p-2 border">Payment Status</th>
-            <th className="p-2 border">Purchase Date</th>
+            <th className="px-6 py-3 font-semibold text-gray-600">
+              User
+            </th>
+            <th className="px-6 py-3 font-semibold text-gray-600">
+              Email
+            </th>
+            <th className="px-6 py-3 font-semibold text-gray-600">
+              Plan
+            </th>
+            <th className="px-6 py-3 font-semibold text-gray-600">
+              Status
+            </th>
+            <th className="px-6 py-3 font-semibold text-gray-600">
+              Amount
+            </th>
+            <th className="px-6 py-3 font-semibold text-gray-600">
+              Payment
+            </th>
+            <th className="px-6 py-3 font-semibold text-gray-600">
+              Purchase Date
+            </th>
           </tr>
         </thead>
 
-        <tbody className="text-sm">
+        <tbody className="divide-y divide-gray-100">
           {data.map((item, index) => (
-            <tr key={index} className="text-center">
-              <td className="p-2 border">{item.user_name}</td>
-              <td className="p-2 border">{item.email}</td>
-              <td className="p-2 border">{item.plan_name}</td>
-              <td className="p-2 border">{item.plan_status}</td>
-              <td className="p-2 border">
-                {item.amount ? `${item.amount} ${item.currency}` : "-"}
+            <tr
+              key={index}
+              className="hover:bg-gray-50 transition-colors"
+            >
+              <td className="px-6 py-4 font-medium text-gray-800">
+                {item.user_name}
               </td>
-              <td className="p-2 border">
-                {item.payment_status || "N/A"}
+
+              <td className="px-6 py-4 text-gray-600">
+                {item.email}
               </td>
-              <td className="p-2 border">
+
+              <td className="px-6 py-4 text-gray-700">
+                {item.plan_name}
+              </td>
+
+              <td className="px-6 py-4">
+                <span
+                  className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold
+                    ${
+                      item.plan_status === "active"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                >
+                  {item.plan_status}
+                </span>
+              </td>
+
+              <td className="px-6 py-4 text-gray-700">
+                {item.amount
+                  ? `${item.amount} ${item.currency}`
+                  : "-"}
+              </td>
+                  
+              <td className="px-6 py-4">
+                <span
+                  className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold
+                    ${
+                      item.payment_status === "paid"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-yellow-100 text-yellow-700"
+                    }`}
+                >
+                  {item.payment_status || "N/A"}
+                </span>
+              </td>
+
+              <td className="px-6 py-4 text-gray-600">
                 {new Date(item.plan_purchase_date).toLocaleDateString()}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      <h3>
+        Total Amount : {getTotalAmt()}
+      </h3>
     </div>
   );
 };

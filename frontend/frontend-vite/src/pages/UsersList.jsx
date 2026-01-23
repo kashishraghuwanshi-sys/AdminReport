@@ -79,7 +79,7 @@ const UsersList = () => {
       const res = await axios.get(
         `http://localhost:5000/api/admin/users?type=${type}`
       );
-
+      console.log(res);
       // 🔥 IMPORTANT FIX
       setUsers(res.data.data || []);
 
@@ -101,28 +101,76 @@ const UsersList = () => {
       ) : users.length === 0 ? (
         <p>No users found</p>
       ) : (
-        <table border="1" cellPadding="10" width="100%">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Age</th>
-              <th>Profession</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id}>
-                <td>{user.name}</td>
-                <td>{user.email}</td>
-                <td>{user.age}</td>
-                <td>{user.profession}</td>
-                <td>{user.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+  <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+    <thead className="bg-gray-100">
+      <tr>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+          S. No.
+        </th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+          Name
+        </th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+          Email
+        </th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+          Age
+        </th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+          Profession
+        </th>
+         <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+          Registered Date
+        </th>
+        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+          Status
+        </th>
+      </tr>
+    </thead>
+
+    <tbody className="divide-y divide-gray-200 bg-white">
+      {users.map((user,index) => (
+        <tr
+          key={user.id}
+          className="hover:bg-gray-50 transition-colors"
+        >
+          <td className="px-6 py-4 text-sm text-gray-800">
+            {index+1}
+          </td>
+          <td className="px-6 py-4 text-sm text-gray-800">
+            {user.name} {user.lname}
+          </td>
+          <td className="px-6 py-4 text-sm text-gray-600">
+            {user.email}
+          </td>
+          <td className="px-6 py-4 text-sm text-gray-800">
+            {user.age}
+          </td>
+          <td className="px-6 py-4 text-sm text-gray-800">
+            {user.profession}
+          </td>
+          <td className="px-6 py-4 text-sm text-gray-800">
+            {new Date(user.created_at).toLocaleDateString()}
+          </td>
+          <td className="px-6 py-4 text-sm">
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-medium
+                ${
+                  user.status === "Approve"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+            >
+              {user.status}
+            </span>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
       )}
     </div>
   );

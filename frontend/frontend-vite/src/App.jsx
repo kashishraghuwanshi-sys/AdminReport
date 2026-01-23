@@ -16,6 +16,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AdminReport from "./pages/AdminReport";
 import UsersList from "./pages/UsersList";
+import SubscriptionPay from "./pages/SubscriptionPay";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
       <Routes>
         <Route path="/" element={<AdminReport />} />
         <Route path="/users/:type" element={<UsersList />} />
+        <Route path="/subscribe" element={<SubscriptionPay />} />
       </Routes>
     </BrowserRouter>
   );
