@@ -4,17 +4,16 @@ import { useState,useEffect } from "react";
 
 const UserActivityTable = ({ data = [] }) => {
   const [totalAmount,setTotalAmount]=useState(0);
-  const getTotalAmt=()=>{
-    var amt=0;
-    data.map((item)=>{
-      
-      amt=amt+Number(item.amount)
-      // console.log(amt);
-      return(
-        amt
-      )
-    })
-  };
+  
+    useEffect(() => {
+    const total = data.reduce((sum, item) => {
+      return sum + Number(item.amount || 0);
+    }, 0);
+
+    setTotalAmount(total);
+  }, [data]);
+
+
   // setTotalAmount(getTotalAmt())
   if (!data.length) {
     return (
@@ -89,6 +88,7 @@ const UserActivityTable = ({ data = [] }) => {
                 {item.amount
                   ? `${item.amount} ${item.currency}`
                   : "-"}
+                  
               </td>
                   
               <td className="px-6 py-4">
@@ -111,8 +111,8 @@ const UserActivityTable = ({ data = [] }) => {
           ))}
         </tbody>
       </table>
-      <h3>
-        Total Amount : {getTotalAmt()}
+      <h3 className="font-semibold text-xl text-center">
+        Total Amount : {totalAmount}
       </h3>
     </div>
   );
