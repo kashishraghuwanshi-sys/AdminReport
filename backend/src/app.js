@@ -22,6 +22,6 @@ app.get("/health", async (req, res) => {
 });
 
 app.use("/api/admin/reports", reportRoutes);
-app.use("/api/admin/users", adminUsersRoutes);
+app.use("/api/admin/users/handle", adminUsersRoutes);
 
 export default app;

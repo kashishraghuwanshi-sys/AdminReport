@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import UserActivityTable from "../components/UserActivityTable";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-
+import BackButton from "../components/BackButton";
 const SubscriptionPay = () => {
   const { state } = useLocation();
 
@@ -37,6 +37,9 @@ const SubscriptionPay = () => {
 
   return (
     <div className="mt-10">
+      <div className="mb-4">
+  <BackButton fallback="/" label="← Back" />
+</div>
       <h2 className="text-xl font-bold mb-1">User Plan & Payment Activity</h2>
 
       {/* ✅ Button removed; only count text */}

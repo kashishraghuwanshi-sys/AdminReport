@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-
+import BackButton from "../components/BackButton";
 
 const UsersList = () => {
   const { type } = useParams(); // all | approved | hold
@@ -19,7 +19,7 @@ const UsersList = () => {
 
       // ✅ BACKEND API
       const res = await axios.get(
-        `http://localhost:5000/api/admin/users?type=${type}`
+        `http://localhost:5000/api/admin/users/handle?type=${type}`
       );
       console.log(res);
       // 🔥 IMPORTANT FIX
@@ -34,6 +34,9 @@ const UsersList = () => {
 
   return (
     <div style={{ padding: "20px" }}>
+      <div className="mb-4">
+  <BackButton fallback="/" label="← Back" />
+</div>
       <h2 style={{ marginBottom: "15px", textTransform: "capitalize" }}>
         {type} Users
       </h2>
