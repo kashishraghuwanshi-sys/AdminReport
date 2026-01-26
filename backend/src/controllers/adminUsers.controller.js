@@ -8,7 +8,7 @@ export const getUsersByType = async (req, res) => {
     if (type === "approved") filter = "AND u.status = 'Approve'";
     if (type === "hold") filter = "AND u.status = 'On Hold'";
     if (type === "process") filter = "AND u.status = 'In Process'";
-
+    if (type === "deactivated") filter = "AND u.status = 'Deactivate'";
     const query = `
       SELECT
         u.id,

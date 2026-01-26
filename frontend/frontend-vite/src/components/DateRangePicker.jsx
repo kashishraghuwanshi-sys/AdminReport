@@ -1,43 +1,42 @@
-// import { useState } from "react";
 
-// const DateRangePicker = ({ onGenerate }) => {
-//   const [fromDate, setFromDate] = useState("");
-//   const [toDate, setToDate] = useState("");
+// import React from "react";
 
-//   const handleGenerateClick = () => {
-//     if (!fromDate || !toDate) {
-//       alert("Please select both From and To dates");
-//       return;
-//     }
-//     // Parent function ko dates pass karein
-//     onGenerate(fromDate, toDate);
-//   };
-
+// const DateRangePicker = ({
+//   fromDate,
+//   toDate,
+//   setFromDate,
+//   setToDate,
+//   onGenerate,
+// }) => {
 //   return (
 //     <div className="flex gap-4 items-end bg-white p-4 rounded shadow">
 //       <div>
-//         <label className="block text-sm font-medium text-gray-700">From</label>
+//         <label className="block text-sm font-medium text-gray-700">
+//           From
+//         </label>
 //         <input
 //           type="date"
 //           value={fromDate}
 //           onChange={(e) => setFromDate(e.target.value)}
-//           className="border p-2 rounded w-full"
+//           className="border p-2 rounded"
 //         />
 //       </div>
 
 //       <div>
-//         <label className="block text-sm font-medium text-gray-700">To</label>
+//         <label className="block text-sm font-medium text-gray-700">
+//           To
+//         </label>
 //         <input
 //           type="date"
 //           value={toDate}
 //           onChange={(e) => setToDate(e.target.value)}
-//           className="border p-2 rounded w-full"
+//           className="border p-2 rounded"
 //         />
 //       </div>
 
 //       <button
-//         onClick={handleGenerateClick}
-//         className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded h-10 mb-[1px]"
+//         onClick={onGenerate}
+//         className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded h-10"
 //       >
 //         Generate Report
 //       </button>
@@ -46,7 +45,6 @@
 // };
 
 // export default DateRangePicker;
-
 
 import React from "react";
 
@@ -60,9 +58,7 @@ const DateRangePicker = ({
   return (
     <div className="flex gap-4 items-end bg-white p-4 rounded shadow">
       <div>
-        <label className="block text-sm font-medium text-gray-700">
-          From
-        </label>
+        <label className="block text-sm font-medium text-gray-700">From</label>
         <input
           type="date"
           value={fromDate}
@@ -72,9 +68,7 @@ const DateRangePicker = ({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">
-          To
-        </label>
+        <label className="block text-sm font-medium text-gray-700">To</label>
         <input
           type="date"
           value={toDate}
@@ -83,7 +77,9 @@ const DateRangePicker = ({
         />
       </div>
 
+      {/* ✅ type="button" added (prevents accidental form-submit refresh) */}
       <button
+        type="button"
         onClick={onGenerate}
         className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded h-10"
       >

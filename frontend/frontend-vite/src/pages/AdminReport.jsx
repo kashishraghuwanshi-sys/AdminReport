@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DateRangePicker from "../components/DateRangePicker";
 import StatCard from "../components/StatCard";
@@ -8,13 +8,35 @@ import LineChart from "../components/Charts/LineChart";
 import PieChart from "../components/Charts/PieChart";
 import StackedBarChart from "../components/Charts/StackedBarChart";
 import { fetchAdminReport } from "../api/adminReport.api";
+import { useAdminReport } from "../context/AdminReportContext";
+import axios from "axios";
 
 const AdminReport = () => {
   const navigate = useNavigate();
 
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-  const [report, setReport] = useState(null);
+
+  const [notRenewedCount, setNotRenewedCount] = useState(0);
+
+useEffect(() => {
+  const fetchNotRenewedCount = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:5000/api/admin/reports/not-renewed"
+      );
+      setNotRenewedCount((res.data?.data || []).length);
+    } catch (e) {
+      console.error("Not renewed count error:", e);
+      setNotRenewedCount(0);
+    }
+  };
+
+  fetchNotRenewedCount();
+}, []);
+
+  // ✅ moved to Context (so browser back doesn't reset)
+  const { fromDate, setFromDate, toDate, setToDate, report, setReport } =
+    useAdminReport();
+
   const [loading, setLoading] = useState(false);
 
   const formatDate = (dateString) => {
@@ -47,11 +69,8 @@ const AdminReport = () => {
       setLoading(true);
 
       const response = await fetchAdminReport(fromDate, toDate);
+      const actualData = response?.data?.data || response?.data || response;
 
-      // ✅ IMPORTANT FIX
-      const actualData =
-        response?.data?.data || response?.data || response;
-      console.log(actualData);
       if (!actualData?.summary) {
         console.error("Invalid response:", response);
         alert("Invalid report data");
@@ -59,7 +78,6 @@ const AdminReport = () => {
       }
 
       setReport(actualData);
-      // console.log("kathan this:",report);
     } catch (err) {
       console.error("API Error:", err);
       alert("Failed to fetch report");
@@ -82,10 +100,8 @@ const AdminReport = () => {
 
       {loading && <p className="text-blue-600">Loading report...</p>}
 
-      {/* 🛑 Guard: jab tak report na aaye */}
       {!loading && report && (
         <>
-          {/* 🔢 STATS */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <StatCard
               title="Total Users"
@@ -107,16 +123,45 @@ const AdminReport = () => {
               value={report.summary.users.in_process_users}
               onClick={() => navigate("/users/process")}
             />
+
             <StatCard
-              title="Subscriptions"
-              value={report.summary.subscriptions.total_subscriptions}
-              onClick={() => navigate("/subscribe",{
-              state: { val: report.users_activity }
-})}
-            />
+  title="Deactivated Users"
+  value={report.summary.users.deactivated_users}
+  onClick={() => navigate("/users/deactivated")}
+/>
+<StatCard
+  title="Subscriptions"
+  value={report.summary.subscriptions.total_subscriptions}
+  onClick={() =>
+    navigate("/subscribe", {
+      state: {
+        val: report.users_activity,
+        expired_not_renewed: report.summary.subscriptions.expired_not_renewed,
+      },
+    })
+  }
+/>
+
+            <StatCard
+  title="Total Messages"
+  value={report.summary.messages.total_messages}
+  onClick={() =>
+    navigate("/messages", {
+      state: {
+        total: report.summary.messages.total_messages,
+        val: report.messages_activity || [],
+      },
+    })
+  }
+/>
+
+<StatCard
+  title="Not Renewed Users"
+  value={notRenewedCount}
+  onClick={() => navigate("/users/not-renewed")}
+/>
           </div>
 
-          {/* 📊 CHARTS */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <BarChart
               title="Users Growth"
@@ -139,6 +184,7 @@ const AdminReport = () => {
               data={[
                 { label: "Approved", value: +report.summary.users.approved_users },
                 { label: "Hold", value: +report.summary.users.hold_users },
+                { label: "In-process", value: +report.summary.users.in_process_users },
                 {
                   label: "Deactivated",
                   value: +report.summary.users.deactivated_users,
@@ -151,14 +197,6 @@ const AdminReport = () => {
               data={processPlanData(report.timeline.plans)}
             />
           </div>
-
-          {/* 💳 PAYMENTS */}
-          {/* <div className="mt-10">
-            <h2 className="text-xl font-bold mb-4">
-              User Plan & Payment Activity
-            </h2>
-            <UserActivityTable data={report.users_activity || []} />
-          </div> */}
         </>
       )}
     </div>
@@ -166,5 +204,3 @@ const AdminReport = () => {
 };
 
 export default AdminReport;
-
-
