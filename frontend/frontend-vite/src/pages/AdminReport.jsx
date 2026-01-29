@@ -1,5 +1,6 @@
 
-import { useState,useEffect } from "react";
+// src/pages/AdminReport.jsx
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DateRangePicker from "../components/DateRangePicker";
 import StatCard from "../components/StatCard";
@@ -7,37 +8,45 @@ import BarChart from "../components/Charts/BarChart";
 import LineChart from "../components/Charts/LineChart";
 import PieChart from "../components/Charts/PieChart";
 import StackedBarChart from "../components/Charts/StackedBarChart";
-import { fetchAdminReport } from "../api/adminReport.api";
+import { fetchAdminReport, fetchNotRenewedUsers } from "../api/adminReport.api";
 import { useAdminReport } from "../context/AdminReportContext";
-import axios from "axios";
 
 const AdminReport = () => {
   const navigate = useNavigate();
-
-
-  const [notRenewedCount, setNotRenewedCount] = useState(0);
-
-useEffect(() => {
-  const fetchNotRenewedCount = async () => {
-    try {
-      const res = await axios.get(
-        "http://localhost:5000/api/admin/reports/not-renewed"
-      );
-      setNotRenewedCount((res.data?.data || []).length);
-    } catch (e) {
-      console.error("Not renewed count error:", e);
-      setNotRenewedCount(0);
-    }
-  };
-
-  fetchNotRenewedCount();
-}, []);
 
   // ✅ moved to Context (so browser back doesn't reset)
   const { fromDate, setFromDate, toDate, setToDate, report, setReport } =
     useAdminReport();
 
   const [loading, setLoading] = useState(false);
+
+  // ✅ Not Renewed count for StatCard
+  const [notRenewedCount, setNotRenewedCount] = useState(0);
+  const [notRenewedLoading, setNotRenewedLoading] = useState(false);
+useEffect(() => {
+  const fetchNotRenewedCount = async () => {
+    // ✅ report generate hone ke baad hi count fetch karo
+    if (!report || !fromDate || !toDate) {
+      setNotRenewedCount(0);
+      return;
+    }
+
+    try {
+      setNotRenewedLoading(true);
+
+      // ✅ IMPORTANT: dates pass karo
+      const res = await fetchNotRenewedUsers(fromDate, toDate);
+      setNotRenewedCount((res?.data || []).length);
+    } catch (e) {
+      console.error("Not renewed count error:", e);
+      setNotRenewedCount(0);
+    } finally {
+      setNotRenewedLoading(false);
+    }
+  };
+
+  fetchNotRenewedCount();
+}, [report, fromDate, toDate]);
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -125,79 +134,91 @@ useEffect(() => {
             />
 
             <StatCard
-  title="Deactivated Users"
-  value={report.summary.users.deactivated_users}
-  onClick={() => navigate("/users/deactivated")}
-/>
-<StatCard
-  title="Subscriptions"
-  value={report.summary.subscriptions.total_subscriptions}
-  onClick={() =>
-    navigate("/subscribe", {
-      state: {
-        val: report.users_activity,
-        expired_not_renewed: report.summary.subscriptions.expired_not_renewed,
-      },
-    })
-  }
-/>
+              title="Deactivated Users"
+              value={report.summary.users.deactivated_users}
+              onClick={() => navigate("/users/deactivated")}
+            />
 
             <StatCard
-  title="Total Messages"
-  value={report.summary.messages.total_messages}
-  onClick={() =>
-    navigate("/messages", {
-      state: {
-        total: report.summary.messages.total_messages,
-        val: report.messages_activity || [],
-      },
-    })
-  }
-/>
+              title="Subscriptions"
+              value={report.summary.subscriptions.total_subscriptions}
+              onClick={() =>
+                navigate("/subscribe", {
+                  state: {
+                    val: report.users_activity,
+                    expired_not_renewed:
+                      report.summary.subscriptions.expired_not_renewed,
+                  },
+                })
+              }
+            />
 
-<StatCard
-  title="Not Renewed Users"
-  value={notRenewedCount}
-  onClick={() => navigate("/users/not-renewed")}
-/>
+            <StatCard
+              title="Total Messages"
+              value={report.summary.messages.total_messages}
+              onClick={() =>
+                navigate("/messages", {
+                  state: {
+                    total: report.summary.messages.total_messages,
+                    val: report.messages_activity || [],
+                  },
+                })
+              }
+            />
+
+            <StatCard
+              title="Not Renewed Users"
+              value={notRenewedLoading ? "..." : notRenewedCount}
+              onClick={() => navigate("/users/not-renewed")}
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <BarChart
-              title="Users Growth"
-              data={report.timeline.users.map((u) => ({
-                label: formatDate(u.period),
-                value: Number(u.total_users),
-              }))}
-            />
+            <div className="min-w-0">
+              <BarChart
+                title="Users Growth"
+                data={report.timeline.users.map((u) => ({
+                  label: formatDate(u.period),
+                  value: Number(u.total_users),
+                }))}
+              />
+            </div>
 
-            <LineChart
-              title="Messages Trend"
-              data={report.timeline.messages.map((m) => ({
-                label: formatDate(m.period),
-                value: Number(m.total_messages),
-              }))}
-            />
+            <div className="min-w-0">
+              <LineChart
+                title="Messages Trend"
+                data={report.timeline.messages.map((m) => ({
+                  label: formatDate(m.period),
+                  value: Number(m.total_messages),
+                }))}
+              />
+            </div>
 
-            <PieChart
-              title="User Status"
-              data={[
-                { label: "Approved", value: +report.summary.users.approved_users },
-                { label: "Hold", value: +report.summary.users.hold_users },
-                { label: "In-process", value: +report.summary.users.in_process_users },
-                {
-                  label: "Deactivated",
-                  value: +report.summary.users.deactivated_users,
-                },
-              ]}
-            />
+            <div className="min-w-0">
+              <PieChart
+                title="User Status"
+                data={[
+                  { label: "Approved", value: +report.summary.users.approved_users },
+                  { label: "Hold", value: +report.summary.users.hold_users },
+                  {
+                    label: "In-process",
+                    value: +report.summary.users.in_process_users,
+                  },
+                  {
+                    label: "Deactivated",
+                    value: +report.summary.users.deactivated_users,
+                  },
+                ]}
+              />
+            </div>
 
-            <StackedBarChart
-              title="Plan Purchases"
-              data={processPlanData(report.timeline.plans)}
-            />
+            <div className="min-w-0">
+              <StackedBarChart
+                title="Plan Purchases"
+                data={processPlanData(report.timeline.plans)}
+              />
+            </div>
           </div>
-           
         </>
       )}
     </div>

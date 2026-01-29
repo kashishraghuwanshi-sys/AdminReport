@@ -1,51 +1,101 @@
+
+
+// import React, { useEffect, useState } from "react";
+// import UserActivityTable from "../components/UserActivityTable";
+// import { useLocation } from "react-router-dom";
+// import BackButton from "../components/BackButton";
+// import { fetchNotRenewedUsers } from "../api/adminReport.api";
+
+// const SubscriptionPay = () => {
+//   const { state } = useLocation();
+//   const tableData = state?.val ?? [];
+
+//   const [expiredCount, setExpiredCount] = useState(
+//     typeof state?.expired_not_renewed === "number" ? state.expired_not_renewed : 0
+//   );
+//   const [countLoading, setCountLoading] = useState(true);
+
+//   useEffect(() => {
+//     const fetchExpiredCount = async () => {
+//       try {
+//         setCountLoading(true);
+//         const res = await fetchNotRenewedUsers(); // { data: [...] }
+//         const list = res?.data || [];
+//         setExpiredCount(list.length);
+//       } catch (e) {
+//         console.error("Failed to fetch not-renewed count:", e);
+//       } finally {
+//         setCountLoading(false);
+//       }
+//     };
+
+//     fetchExpiredCount();
+//   }, []);
+
+//   return (
+//     <div className="mt-10">
+//       <div className="mb-4">
+//         <BackButton fallback="/" label="← Back" />
+//       </div>
+
+//       <h2 className="text-xl font-bold mb-1">User Plan & Payment Activity</h2>
+
+//       <p className="text-gray-700 font-semibold mb-4">
+//         Expired (Not Renewed): {countLoading ? "Loading..." : expiredCount}
+//       </p>
+
+//       <UserActivityTable data={tableData} />
+//     </div>
+//   );
+// };
+
+// export default SubscriptionPay;
+
+
 import React, { useEffect, useState } from "react";
 import UserActivityTable from "../components/UserActivityTable";
 import { useLocation } from "react-router-dom";
-import axios from "axios";
 import BackButton from "../components/BackButton";
+import { fetchNotRenewedUsers } from "../api/adminReport.api";
+import { useAdminReport } from "../context/AdminReportContext";
+
 const SubscriptionPay = () => {
   const { state } = useLocation();
-
   const tableData = state?.val ?? [];
 
-  // state se agar aa raha ho to initial set, warna 0
-  const [expiredCount, setExpiredCount] = useState(
-    typeof state?.expired_not_renewed === "number" ? state.expired_not_renewed : 0
-  );
+  const { fromDate, toDate } = useAdminReport();
+
+  const [expiredCount, setExpiredCount] = useState(0);
   const [countLoading, setCountLoading] = useState(true);
 
-  // ✅ Always fetch correct count from backend (so 0 issue fix ho jaye)
   useEffect(() => {
     const fetchExpiredCount = async () => {
       try {
         setCountLoading(true);
-        const res = await axios.get(
-          "http://localhost:5000/api/admin/reports/not-renewed"
-        );
-        const list = res.data?.data || [];
+        const res = await fetchNotRenewedUsers(fromDate, toDate);
+        const list = res?.data || [];
         setExpiredCount(list.length);
       } catch (e) {
         console.error("Failed to fetch not-renewed count:", e);
-        // fallback: state wala count hi rehne do
+        setExpiredCount(0);
       } finally {
         setCountLoading(false);
       }
     };
 
     fetchExpiredCount();
-  }, []);
+  }, [fromDate, toDate]);
 
   return (
     <div className="mt-10">
       <div className="mb-4">
-  <BackButton fallback="/" label="← Back" />
-</div>
+        <BackButton fallback="/" label="← Back" />
+      </div>
+
       <h2 className="text-xl font-bold mb-1">User Plan & Payment Activity</h2>
 
-      {/* ✅ Button removed; only count text */}
       <p className="text-gray-700 font-semibold mb-4">
-        Expired (Not Renewed):{" "}
-        {countLoading ? "Loading..." : expiredCount}
+        Expired (Not Renewed): {countLoading ? "Loading..." : expiredCount}
       </p>
 
       <UserActivityTable data={tableData} />
